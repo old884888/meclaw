@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "api_profiles": [
+    {
+      "id": "p_default",
+      "name": "你的 API 配置名",
+      "base_url": "https://api.deepseek.com",
+      "api_key": "<在此填写密钥>",
+      "model": "deepseek-chat",
+      "provider": "generic",
+      "enabled": true,
+      "temperature": null,
+      "max_tokens": 4096,
+      "max_context": 65536,
+      "models": [
+        "deepseek-chat"
+      ],
+      "optimizations": []
+    }
+  ],
+  "bots": [
+    {
+      "id": "default",
+      "name": "默认助手",
+      "avatar": "🤖",
+      "profile_id": "p_default",
+      "model": "",
+      "temperature": null,
+      "max_tokens": null,
+      "background_model": "",
+      "brains": {},
+      "reasoning_enabled": false,
+      "reasoning_level": "medium",
+      "reasoning_visible": true
+    }
+  ],
+  "active_bot_id": "default",
+
+  "multi_brain_enabled": true,
+  "brain_trace_enabled": false,
+  "memory_enabled": true,
+  "memory_retrieval_enabled": true,
+  "memory_write_enabled": true,
+  "memory_token_budget": 1200,
+  "persona_token_budget": 400,
+  "cognitive_token_budget": 800,
+  "protection_zone_tokens": 4000,
+  "compaction_tier1_pct": 70,
+  "compaction_tier2_pct": 85,
+  "compaction_tier3_pct": 95,
+  "l1_extract_every_turn": false,
+  "l1_extract_mode": "auto",
+  "l1_extract_max_atoms": 5,
+  "l2_update_every_n_turns": 10,
+  "l3_update_every_n_atoms": 50,
+  "summary_max_length": 800,
+
+  "learner_enabled": true,
+  "learner_schedule": "background",
+  "learner_nudge_enabled": true,
+  "learner_nudge_dedupe_hours": 24,
+
+  "knowledge_retrieval_strategy": "hybrid",
+  "memory_retrieval_strategy": "hybrid",
+  "memory_chain_budget_ratio": 0.3,
+  "memory_chain_max_full": 3,
+  "history_backup_generations": 3,
+
+  "embedding_provider": "local",
+  "embedding_model": "",
+  "embedding_profile_id": "",
+  "ann_enabled": false,
+  "rerank_enabled": false,
+  "rerank_provider": "local",
+  "rerank_model": "",
+  "rerank_profile_id": "",
+  "rerank_candidate_pool": 20,
+  "rerank_top_k": 5,
+
+  "model_roles": {},
+  "memory_dedupe_threshold": 0.92,
+  "topic_cluster_enabled": true,
+  "topic_cluster_threshold": 0.75,
+  "memory_consolidation_enabled": true,
+  "memory_l1_max_atoms": 200,
+  "memory_topic_chain_max": 10,
+  "memory_l3_max_chars": 2000,
+  "memory_consolidation_merge_threshold": 0.9,
+
+  "skill_recall_enabled": true,
+  "skill_token_budget": 600,
+  "skill_recall_top_k": 3,
+  "skill_recall_threshold": 0.5,
+
+  "memory_recency_half_life_days": 30,
+  "memory_score_relevance_weight": 0.5,
+  "memory_score_importance_weight": 0.3,
+  "memory_score_recency_weight": 0.1,
+  "memory_score_hit_weight": 0.1
+}

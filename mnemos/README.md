@@ -49,9 +49,11 @@ python -m uvicorn backend.main:app --host 127.0.0.1 --port 8766
 
 ```bash
 mkdir data
-cp data/config.example.json data/config.json
+cp config.example.json data/config.json
 # 然后编辑 data/config.json，把 <在此填写密钥> 换成你自己的 Key
 ```
+
+> `data/` 是运行时目录（对话、记忆、知识库），已在 `.gitignore` 中排除，所以仓库里只有 `config.example.json` 模板，不在 `data/` 内。
 
 ### 启动器入口
 

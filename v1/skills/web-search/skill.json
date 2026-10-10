@@ -1,0 +1,7 @@
+{
+  "id": "web-search",
+  "name": "联网搜索",
+  "version": "1.1",
+  "description": "通过 search_web 函数检索互联网（DeepSeek Function Calling）",
+  "icon": "🌐"
+}

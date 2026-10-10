@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-06-05
+status: proposal
+depends_on: bot-centric-navigation

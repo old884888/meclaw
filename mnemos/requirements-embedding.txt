@@ -1,0 +1,2 @@
+# Optional dependencies for local embedding + rerank (MNEMOS P1/P2).
+fastembed>=0.5.0

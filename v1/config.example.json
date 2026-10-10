@@ -1,0 +1,59 @@
+{
+    "api_profiles": [
+        {
+            "id": "default",
+            "name": "你的 API 配置名",
+            "base_url": "https://api.example.com/v1",
+            "api_key": "在此填写密钥",
+            "model": "model-name",
+            "temperature": 0.7,
+            "max_tokens": 4096,
+            "max_context": 65536,
+            "provider": "generic"
+        }
+    ],
+    "bots": [
+        {
+            "id": "default",
+            "name": "默认助手",
+            "avatar": "🤖",
+            "profile_id": "default",
+            "soul_folder": "souls/default",
+            "model": "",
+            "temperature": null,
+            "max_tokens": null,
+            "max_context": null,
+            "thinking_enabled": false,
+            "thinking_depth": "high",
+            "web_search": false,
+            "enabled_skills": [],
+            "skills_use_global": true
+        }
+    ],
+    "active_bot_id": "default",
+    "user_avatar": "😎",
+    "enabled_skills": [],
+    "context_rounds": 10,
+    "auto_save_history": false,
+    "user_font_size": 14,
+    "bot_font_size": 14,
+    "thinking_font_size": 12,
+    "receive_dir": "",
+    "theme": "dark",
+    "api_log_enabled": false,
+    "editor_word_wrap": true,
+    "web_search_provider": "bing_local",
+    "web_search_api_key": "",
+    "web_search_max_rounds": 3,
+    "web_search_max_queries_per_round": 3,
+    "memory_enabled": true,
+    "memory_retrieval_enabled": true,
+    "memory_write_enabled": true,
+    "memory_auto_extract": false,
+    "memory_token_budget": 1200,
+    "memory_extract_threshold_pct": 85,
+    "compress_summary_detail": "standard",
+    "memory_organizer_enabled": false,
+    "memory_organizer_profile_id": "",
+    "memory_organizer_bot_id": ""
+}

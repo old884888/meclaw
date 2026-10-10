@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeClaw</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="js/marked.min.js"></script>
+</head>
+<body>
+    <!-- 配置面板 -->
+    <div id="config-modal" class="modal hidden">
+        <div class="modal-content config-modal-content">
+            <header class="config-header">
+                <div class="config-header-left">
+                    <button type="button" id="settings-back" class="settings-back-btn hidden" title="返回">←</button>
+                    <div>
+                        <h2 id="settings-title">⚙ 设置</h2>
+                        <p id="settings-subtitle" class="config-subtitle">选择要调整的类别</p>
+                    </div>
+                </div>
+                <button type="button" id="config-close" class="preview-btn" title="关闭">✕</button>
+            </header>
+
+            <!-- 设置入口 -->
+            <div id="settings-view-hub" class="config-body settings-view">
+                <button type="button" class="settings-menu-item" data-settings-view="providers">
+                    <span class="settings-menu-icon">🔌</span>
+                    <span class="settings-menu-text">
+                        <span class="settings-menu-title">供应商</span>
+                        <span class="settings-menu-desc">API 地址、密钥、模型与余额</span>
+                    </span>
+                    <span class="settings-menu-arrow">›</span>
+                </button>
+                <button type="button" class="settings-menu-item" data-settings-view="bots">
+                    <span class="settings-menu-icon">🤖</span>
+                    <span class="settings-menu-text">
+                        <span class="settings-menu-title">机器人</span>
+                        <span class="settings-menu-desc">添加、编辑 Bot 与人设</span>
+                    </span>
+                    <span class="settings-menu-arrow">›</span>
+                </button>
+                <button type="button" class="settings-menu-item" data-settings-view="appearance">
+                    <span class="settings-menu-icon">🎨</span>
+                    <span class="settings-menu-text">
+                        <span class="settings-menu-title">外观</span>
+                        <span class="settings-menu-desc">主题、头像和字号</span>
+                    </span>
+                    <span class="settings-menu-arrow">›</span>
+                </button>
+                <button type="button" class="settings-menu-item" data-settings-view="memory">
+                    <span class="settings-menu-icon">🧠</span>
+                    <span class="settings-menu-text">
+                        <span class="settings-menu-title">记忆</span>
+                        <span class="settings-menu-desc">检索、写入和自动压缩</span>
+                    </span>
+                    <span class="settings-menu-arrow">›</span>
+                </button>
+                <button type="button" class="settings-menu-item" data-settings-view="developer">
+                    <span class="settings-menu-icon">⚙</span>
+                    <span class="settings-menu-text">
+                        <span class="settings-menu-title">开发者</span>
+                        <span class="settings-menu-desc">联网搜索、技能、文件和日志</span>
+                    </span>
+                    <span class="settings-menu-arrow">›</span>
+                </button>
+            </div>
+
+            <!-- 供应商列表 -->
+            <div id="settings-view-providers" class="config-body settings-view hidden">
+                <p class="settings-view-hint">点击供应商编辑；高亮项为当前 Bot 正在使用</p>
+                <div id="providers-list" class="providers-list"></div>
+                <button type="button" id="btn-add-provider" class="btn-add-profile">+ 添加供应商</button>
+            </div>
+
+            <!-- 供应商详情 -->
+            <div id="settings-view-provider-detail" class="settings-view provider-detail-shell hidden">
+                <div class="provider-detail-scroll">
+                <div class="provider-detail-tabs">
+                    <button type="button" class="provider-tab active" data-provider-tab="config">配置</button>
+                    <button type="button" class="provider-tab" data-provider-tab="models">模型</button>
+                </div>
+                <div id="provider-tab-config" class="provider-tab-panel">
+                    <div class="form-group">
+                        <label for="pv-name">别名</label>
+                        <input type="text" id="pv-name" placeholder="DeepSeek">
+                    </div>
+                    <div class="form-group">
+                        <label for="pv-base-url">Base URL <span class="required">*</span></label>
+                        <input type="text" id="pv-base-url" placeholder="https://api.deepseek.com/v1">
+                    </div>
+                    <div class="form-group">
+                        <label for="pv-api-key">API Key <span class="required">*</span></label>
+                        <div class="input-with-toggle">
+                            <input type="password" id="pv-api-key" placeholder="sk-..." autocomplete="off">
+                            <button type="button" class="btn-icon-inline" id="pv-toggle-key" title="显示/隐藏">👁</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="pv-default-model">默认模型</label>
+                        <select id="pv-default-model"></select>
+                        <p class="form-hint">在「模型」Tab 添加后可在此选择；也可直接输入</p>
+                        <input type="text" id="pv-default-model-custom" class="hidden" placeholder="模型 ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="pv-provider">模型优化</label>
+                        <select id="pv-provider">
+                            <option value="generic">通用（标准 OpenAI 兼容）</option>
+                            <option value="deepseek">DeepSeek（深度优化）</option>
+                            <option value="anthropic">Anthropic（Claude 兼容）</option>
+                        </select>
+                        <div id="pv-provider-hint" class="provider-hint hidden">已启用：深度思考 / 联网搜索 / 流式推理</div>
+                    </div>
+                    <div class="form-group config-log-row">
+                        <label>是否启用</label>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="pv-enabled" checked>
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                    <section class="config-card provider-balance-card">
+                        <div class="form-group config-log-row">
+                            <label>获取账户余额</label>
+                            <label class="switch-toggle">
+                                <input type="checkbox" id="pv-balance-enabled">
+                                <span class="switch-slider"></span>
+                            </label>
+                        </div>
+                        <div id="pv-balance-fields" class="hidden">
+                            <div class="form-group">
+                                <label for="pv-balance-path">余额 API 路径</label>
+                                <input type="text" id="pv-balance-path" placeholder="/user/balance">
+                            </div>
+                            <div class="form-group">
+                                <label for="pv-balance-json-path">结果 JSON 路径</label>
+                                <input type="text" id="pv-balance-json-path" placeholder="balance_infos[0].total_balance">
+                            </div>
+                            <div class="provider-balance-row">
+                                <span id="pv-balance-value" class="provider-balance-value">—</span>
+                                <button type="button" id="btn-query-balance" class="btn-secondary btn-sm">查询余额</button>
+                            </div>
+                        </div>
+                    </section>
+                    <div class="provider-detail-actions">
+                        <button type="button" id="btn-test-provider" class="btn-secondary">测试连接</button>
+                        <span id="provider-test-result" class="test-result hidden"></span>
+                    </div>
+                </div>
+                <div id="provider-tab-models" class="provider-tab-panel hidden">
+                    <p class="settings-view-hint">一个供应商可配置多个模型；聊天时 Bot 可选用其中任一模型</p>
+                    <div id="provider-models-list" class="provider-models-list"></div>
+                    <button type="button" id="btn-add-provider-model" class="btn-add-profile">+ 添加模型</button>
+                </div>
+                </div>
+                <footer class="provider-detail-footer">
+                    <button type="button" id="btn-delete-provider" class="btn-danger-outline">删除供应商</button>
+                    <button type="button" id="btn-save-provider" class="btn-primary">保存</button>
+                </footer>
+            </div>
+
+            <!-- 通用设置 -->
+            <div id="settings-view-general" class="config-body settings-view hidden">
+                <section class="config-card" data-settings-section="appearance">
+                    <h3 class="config-card-title"><span class="config-card-icon">🎨</span> 外观</h3>
+                    <div class="config-inline-row">
+                        <div class="form-group">
+                            <label for="cfg-theme">主题</label>
+                            <select id="cfg-theme">
+                                <option value="dark">暗色</option>
+                                <option value="light">亮色</option>
+                            </select>
+                        </div>
+                        <div class="config-avatar-block">
+                            <label>用户头像</label>
+                            <button type="button" class="config-avatar-btn" onclick="openUserEmojiPicker()" title="点击更换">
+                                <span id="cfg-user-avatar" class="avatar-preview">😎</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="config-font-grid">
+                        <div class="form-group">
+                            <label for="cfg-user-font-size">用户字号</label>
+                            <select id="cfg-user-font-size">
+                                <option value="12">12</option><option value="13">13</option>
+                                <option value="14" selected>14</option><option value="15">15</option>
+                                <option value="16">16</option><option value="18">18</option>
+                                <option value="20">20</option><option value="22">22</option>
+                                <option value="24">24</option><option value="28">28</option><option value="32">32</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cfg-bot-font-size">Bot 字号</label>
+                            <select id="cfg-bot-font-size">
+                                <option value="12">12</option><option value="13">13</option>
+                                <option value="14">14</option><option value="15">15</option>
+                                <option value="16">16</option><option value="18" selected>18</option>
+                                <option value="20">20</option><option value="22">22</option>
+                                <option value="24">24</option><option value="28">28</option><option value="32">32</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cfg-thinking-font-size">思考字号</label>
+                            <select id="cfg-thinking-font-size">
+                                <option value="11">11</option><option value="12" selected>12</option>
+                                <option value="13">13</option><option value="14">14</option>
+                                <option value="15">15</option><option value="16">16</option>
+                                <option value="18">18</option><option value="20">20</option>
+                                <option value="22">22</option><option value="24">24</option><option value="28">28</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="config-card" data-settings-section="developer">
+                    <h3 class="config-card-title"><span class="config-card-icon">✎</span> 编辑器（编程模式）</h3>
+                    <p class="config-card-desc">打开文件预览/编辑时的显示与保存行为</p>
+                    <div class="form-group config-log-row">
+                        <label>自动换行</label>
+                        <div class="toggle-group toggle-group-stretch">
+                            <button type="button" class="toggle-btn" data-field="editor-word-wrap" data-value="false">关</button>
+                            <button type="button" class="toggle-btn" data-field="editor-word-wrap" data-value="true">开</button>
+                        </div>
+                    </div>
+                    <p class="form-hint">快捷键：Ctrl+S 保存 · Ctrl+N 新建文件</p>
+                </section>
+
+                <section class="config-card" data-settings-section="memory">
+                    <h3 class="config-card-title"><span class="config-card-icon">🧠</span> 记忆</h3>
+                    <p class="config-card-desc">按分类存于灵魂文件夹 memory/，发消息前检索相关片段注入上下文</p>
+                    <div class="form-group config-log-row">
+                        <label>启用记忆</label>
+                        <div class="toggle-group toggle-group-stretch">
+                            <button type="button" class="toggle-btn" data-field="memory-enabled" data-value="false">关</button>
+                            <button type="button" class="toggle-btn" data-field="memory-enabled" data-value="true">开</button>
+                        </div>
+                    </div>
+                    <div class="form-group config-log-row">
+                        <label>仅检索（压缩时不写入）</label>
+                        <div class="toggle-group toggle-group-stretch">
+                            <button type="button" class="toggle-btn" data-field="memory-write-enabled" data-value="false">是</button>
+                            <button type="button" class="toggle-btn" data-field="memory-write-enabled" data-value="true">否</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cfg-memory-token-budget">记忆 token 预算</label>
+                        <input type="number" id="cfg-memory-token-budget" min="0" max="8000" step="100" placeholder="1200">
+                    </div>
+                    <div class="form-group config-log-row">
+                        <label>自动压缩上下文</label>
+                        <div class="toggle-group toggle-group-stretch">
+                            <button type="button" class="toggle-btn" data-field="memory-auto-extract" data-value="false">关</button>
+                            <button type="button" class="toggle-btn" data-field="memory-auto-extract" data-value="true">开</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cfg-auto-compress-threshold">
+                            自动压缩阈值 <span id="cfg-auto-compress-threshold-val" class="range-value">85%</span>
+                        </label>
+                        <input type="range" id="cfg-auto-compress-threshold" min="50" max="98" step="1" value="85">
+                        <p class="form-hint">发消息前上下文占用达到该比例时自动压缩并整理记忆（全局默认，Bot 可覆盖）</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="cfg-compress-summary-detail">默认摘要详略（自动压缩）</label>
+                        <select id="cfg-compress-summary-detail">
+                            <option value="minimal">极简</option>
+                            <option value="standard" selected>标准</option>
+                            <option value="detailed">详尽</option>
+                            <option value="max">琐碎 max</option>
+                        </select>
+                        <p class="form-hint">详略越高摘要越长；手动压缩可在弹窗中临时改档位</p>
+                    </div>
+                    <div class="form-group config-log-row">
+                        <label>独立整理模型</label>
+                        <div class="toggle-group toggle-group-stretch">
+                            <button type="button" class="toggle-btn" data-field="organizer-enabled" data-value="false">关</button>
+                            <button type="button" class="toggle-btn" data-field="organizer-enabled" data-value="true">开</button>
+                        </div>
+                    </div>
+                    <div id="organizer-model-section" class="form-group" style="display:none">
+                        <label for="cfg-organizer-profile">整理模型</label>
+                        <select id="cfg-organizer-profile"></select>
+                        <p class="form-hint">压缩摘要和记忆提取使用的模型。推荐选择快速、经济的模型（如 deepseek-chat、gpt-4o-mini）。关闭则使用当前对话模型。</p>
+                        <div class="form-group config-log-row" style="margin-top: 8px;">
+                            <label>整理模式</label>
+                            <div class="toggle-group toggle-group-stretch">
+                                <button type="button" class="toggle-btn" data-field="organizer-thinking" data-value="false">快速</button>
+                                <button type="button" class="toggle-btn" data-field="organizer-thinking" data-value="true">思考</button>
+                            </div>
+                        </div>
+                        <div id="organizer-thinking-depth-row" class="form-group config-log-row" style="display:none">
+                            <label>思考深度</label>
+                            <div class="toggle-group toggle-group-stretch">
+                                <button type="button" class="toggle-btn" data-field="organizer-thinking-depth" data-value="high">标准</button>
+                                <button type="button" class="toggle-btn" data-field="organizer-thinking-depth" data-value="max">加深</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="form-hint">手动压缩：侧边栏「状态」面板底部按钮</p>
+                </section>
+
+                <section class="config-card" data-settings-section="developer">
+                    <h3 class="config-card-title"><span class="config-card-icon">🌐</span> 联网搜索</h3>
+                    <p class="config-card-desc">启用「联网搜索」技能后，通过 Function Calling 检索（非 web_search 工具类型）</p>
+                    <div class="form-group">
+                        <label for="cfg-web-search-provider">检索方式</label>
+                        <select id="cfg-web-search-provider">
+                            <option value="bing_local">Bing 本地（推荐，无需 Key）</option>
+                            <option value="duckduckgo">DuckDuckGo（无需 Key）</option>
+                            <option value="serpapi">SerpAPI / Google（需 Key）</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cfg-web-search-api-key">SerpAPI Key（可选）</label>
+                        <input type="password" id="cfg-web-search-api-key" placeholder="仅 SerpAPI 需要" autocomplete="off">
+                    </div>
+                    <div class="form-row form-row-inline">
+                        <div class="form-group form-group-half">
+                            <label for="cfg-web-search-max-rounds">工具循环轮次</label>
+                            <input type="number" id="cfg-web-search-max-rounds" min="1" max="5" value="3">
+                        </div>
+                        <div class="form-group form-group-half">
+                            <label for="cfg-web-search-max-queries">每轮最多检索条数</label>
+                            <input type="number" id="cfg-web-search-max-queries" min="1" max="8" value="3">
+                        </div>
+                    </div>
+                    <p class="form-hint">非轮询：模型可在多轮中「检索 → 思考 → 再检索」，上限用于控制 API 成本与延迟。</p>
+                </section>
+
+                <section class="config-card" data-settings-section="developer">
+                    <h3 class="config-card-title"><span class="config-card-icon">🔧</span> 技能（全局）</h3>
+                    <p class="config-card-desc">默认对所有 Bot 生效；可在编辑机器人里单独覆盖</p>
+                    <div id="cfg-skill-list" class="skill-list"></div>
+                    <p id="cfg-skill-empty" class="form-hint hidden">将技能放入 <code>skills/</code> 后重新打开设置</p>
+                    <button type="button" class="btn-secondary btn-open-skills" onclick="openSkillsDir()">📂 打开技能文件夹</button>
+                </section>
+
+                <section class="config-card" data-settings-section="developer">
+                    <h3 class="config-card-title"><span class="config-card-icon">📁</span> 对话文件</h3>
+                    <p id="cfg-receive-layout-hint" class="form-hint receive-layout-hint">各对话：根目录 / 对话ID / files/</p>
+                    <div class="form-row form-row-inline config-dir-row">
+                        <input type="text" id="cfg-receive-dir" placeholder="默认 downloads/" readonly>
+                        <button type="button" class="btn-secondary btn-inline" id="btn-browse-receive-dir">浏览</button>
+                        <button type="button" class="btn-secondary btn-inline" id="btn-open-receive-dir">打开</button>
+                    </div>
+                </section>
+
+                <section class="config-card config-card-compact" data-settings-section="developer">
+                    <h3 class="config-card-title"><span class="config-card-icon">🧪</span> 高级</h3>
+                    <div class="config-advanced-row">
+                        <button type="button" id="btn-test" class="btn-secondary">测试当前 API</button>
+                        <span id="test-result" class="test-result hidden"></span>
+                    </div>
+                    <div class="form-group config-log-row">
+                        <label>API 调试日志</label>
+                        <div class="toggle-group toggle-group-stretch">
+                            <button type="button" class="toggle-btn" data-field="api-log-enabled" data-value="false">关</button>
+                            <button type="button" class="toggle-btn" data-field="api-log-enabled" data-value="true">开</button>
+                        </div>
+                    </div>
+                    <p class="form-hint">日志显示在侧边栏「状态」面板</p>
+                </section>
+            </div>
+
+            <footer id="config-footer-general" class="config-footer hidden">
+                <button type="button" id="btn-save" class="btn-primary">保存配置</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 模型编辑弹窗 -->
+    <div id="model-edit-modal" class="modal hidden">
+        <div class="modal-content model-edit-content">
+            <div class="config-header">
+                <h2 id="model-edit-title">编辑模型</h2>
+                <button id="model-edit-close" class="preview-btn" title="关闭">✕</button>
+            </div>
+            <div class="form-group">
+                <label for="me-name">模型名称 <span class="required">*</span></label>
+                <input type="text" id="me-name" placeholder="deepseek-v4-flash">
+            </div>
+            <div class="form-group">
+                <label>输入</label>
+                <div class="cap-toggle-group" data-cap-group="input">
+                    <button type="button" class="cap-toggle active" data-value="text">文本</button>
+                    <button type="button" class="cap-toggle" data-value="image">图片</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>输出</label>
+                <div class="cap-toggle-group" data-cap-group="output">
+                    <button type="button" class="cap-toggle active" data-value="text">文本</button>
+                    <button type="button" class="cap-toggle" data-value="image">图片</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>能力</label>
+                <div class="cap-toggle-group" data-cap-group="capabilities">
+                    <button type="button" class="cap-toggle" data-value="tools">工具</button>
+                    <button type="button" class="cap-toggle" data-value="reasoning">推理</button>
+                </div>
+                <p class="form-hint">推理=允许发送 reasoning/思考参数；工具=允许 Function Calling/联网搜索。它们不是优先级，只声明模型能力。</p>
+            </div>
+            <div class="modal-actions">
+                <button id="model-edit-cancel" class="btn-secondary">取消</button>
+                <button id="model-edit-save" class="btn-primary">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 群设置弹窗 -->
+    <div id="group-settings-modal" class="modal hidden">
+        <div class="modal-content bot-manager-content group-settings-content">
+            <h3>⚙ 群聊设置</h3>
+
+            <div class="form-group config-log-row">
+                <label>快速模式（接话时不思考）</label>
+                <label class="switch-toggle">
+                    <input type="checkbox" id="group-chain-fast-mode">
+                    <span class="switch-slider"></span>
+                </label>
+            </div>
+            <p class="form-hint" style="margin: -8px 0 12px;">接话时关闭思考，省 token / 更快</p>
+
+            <div class="form-group config-log-row">
+                <label>群聊自动压缩</label>
+                <label class="switch-toggle">
+                    <input type="checkbox" id="group-auto-compress-enabled">
+                    <span class="switch-slider"></span>
+                </label>
+            </div>
+            <p class="form-hint" style="margin: -8px 0 12px;">上下文达阈值时摘要旧消息，保留最近 6 条</p>
+
+            <div class="form-group">
+                <label>接话链上限 <span id="group-max-chain-rounds-val" class="range-value">5</span></label>
+                <input type="range" id="group-max-chain-rounds" min="0" max="20" value="5">
+            </div>
+            <p class="form-hint" style="margin: -8px 0 12px;">Bot 互聊时每次 @ 一名成员扣 1；余额为 0 时不再触发接话</p>
+
+            <div class="form-group">
+                <label>历史上限（条，0=不限） <span id="group-chain-history-limit-val" class="range-value">40</span></label>
+                <input type="range" id="group-chain-history-limit" min="0" max="200" value="40">
+            </div>
+
+            <div class="form-group">
+                <label>自动压缩阈值（%） <span id="group-auto-compress-threshold-val" class="range-value">85%</span></label>
+                <input type="range" id="group-auto-compress-threshold" min="50" max="98" value="85">
+            </div>
+
+            <div class="form-group">
+                <label>成员主动值（@ 他人概率）</label>
+                <div id="group-member-settings" class="group-member-settings"></div>
+            </div>
+
+            <p class="form-hint group-settings-hint">
+                <strong>主动值</strong>：成员发言后若正文没有 @，按该概率由程序随机 @ 一名其他成员（不消耗 token）。<br>
+                <strong>用户 @ Bot</strong>：始终触发回复，不扣接话链余额。
+            </p>
+
+            <div class="modal-actions">
+                <button type="button" id="group-settings-cancel" class="btn-secondary">取消</button>
+                <button type="button" id="group-settings-save" class="btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 建群弹窗 -->
+    <div id="group-modal" class="modal hidden">
+        <div class="modal-content bot-manager-content">
+            <h3>创建群聊</h3>
+            <div class="form-group">
+                <label>群名称</label>
+                <input type="text" id="group-name-input" placeholder="例如：配音小分队">
+            </div>
+            <div class="form-group">
+                <label>选择成员（至少 2 个机器人）</label>
+                <div id="group-member-select" class="group-member-select"></div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="group-modal-cancel" class="btn-secondary">取消</button>
+                <button type="button" id="group-modal-save" class="btn-primary">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 重命名群聊弹窗 -->
+    <div id="group-rename-modal" class="modal hidden">
+        <div class="modal-content bot-manager-content" style="max-width: 400px;">
+            <h3>重命名群聊</h3>
+            <div class="form-group">
+                <label>群名称</label>
+                <input type="text" id="group-rename-input" placeholder="输入新的群名称">
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="group-rename-cancel" class="btn-secondary">取消</button>
+                <button type="button" id="group-rename-confirm" class="btn-primary">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主界面 -->
+    <div id="app">
+        <header>
+            <div class="header-left">
+                <div class="mode-switcher">
+                    <button id="btn-mode-chat" class="mode-btn active" data-mode="chat">💬 对话</button>
+                    <button id="btn-mode-code" class="mode-btn" data-mode="code">💻 编程</button>
+                </div>
+                <div id="bot-selector" class="bot-selector">
+                    <span id="current-bot-avatar" class="bot-avatar-small bot-avatar-clickable" title="点击更换头像">🤖</span>
+                    <span id="current-bot-name">默认助手</span>
+                    <span id="current-bot-mode-badge" class="bot-mode-badge hidden" title="DeepSeek 对话模式"></span>
+                    <span class="dropdown-arrow">▾</span>
+                </div>
+                <span id="code-workdir" class="code-workdir hidden" title="点击切换目录"></span>
+            </div>
+            <div class="header-actions">
+                <button type="button" id="btn-manage-bots-header" class="btn-header-action" title="管理机器人">🤖 机器人</button>
+                <button type="button" id="btn-group-settings" class="btn-group-settings-header hidden" title="群聊 Bot 接话设置">⚙ 群设置</button>
+                <button id="btn-settings" class="icon-btn" title="设置">⚙</button>
+            </div>
+        </header>
+
+        <div id="main-content" data-mode="chat">
+            <!-- 侧边栏 -->
+            <div id="sidebar" class="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-main-tabs">
+                        <button type="button" id="sidebar-tab-chat" class="sidebar-main-tab active">💬 对话</button>
+                        <button type="button" id="sidebar-tab-group" class="sidebar-main-tab">👥 群聊</button>
+                        <button type="button" id="sidebar-tab-status" class="sidebar-main-tab">📊 状态</button>
+                    </div>
+                </div>
+
+                <!-- 对话面板 -->
+                <div id="chat-panel" class="sidebar-panel">
+                    <div class="session-search-wrap">
+                        <input id="session-search" type="text" class="session-search" placeholder="搜索对话...">
+                    </div>
+                    <div id="session-toolbar" class="session-toolbar">
+                        <button type="button" id="btn-session-back" class="sidebar-btn-small hidden">← 返回</button>
+                        <button type="button" id="btn-new-session" class="btn-new-session hidden">+ 新建对话</button>
+                        <button type="button" id="btn-select-mode" class="btn-select-mode hidden">多选</button>
+                    </div>
+                    <div id="session-select-bar" class="session-select-bar hidden">
+                        <button id="btn-select-back" class="sidebar-btn-small">← 返回</button>
+                        <button id="btn-select-all" class="sidebar-btn-small">全选</button>
+                        <button id="btn-select-delete" class="sidebar-btn-small btn-danger">删除</button>
+                        <span id="select-count" class="select-count">已选 0 项</span>
+                    </div>
+                    <div id="session-list" class="session-list"></div>
+                    <div id="search-results" class="search-results hidden"></div>
+                </div>
+
+                <!-- 群聊面板 -->
+                <div id="group-panel" class="sidebar-panel hidden">
+                    <div class="session-search-wrap">
+                        <input id="group-session-search" type="text" class="session-search" placeholder="搜索群对话..." disabled>
+                    </div>
+                    <div id="group-session-toolbar" class="session-toolbar">
+                        <button type="button" id="btn-group-back" class="sidebar-btn-small hidden">← 返回</button>
+                        <button type="button" id="btn-new-group-session" class="btn-new-session hidden">+ 新建群对话</button>
+                        <button type="button" id="btn-create-group" class="btn-select-mode">+ 建群</button>
+                    </div>
+                    <div id="group-session-list" class="session-list"></div>
+                </div>
+
+                <!-- 文件面板 -->
+                <div id="files-panel" class="sidebar-panel hidden">
+                    <button id="btn-open-folder" class="btn-new-session">📂 打开文件夹</button>
+                    <div id="file-tree" class="file-tree"></div>
+                    <div class="sidebar-action-bar">
+                        <button id="btn-rollback" class="sidebar-btn">↩ 回退</button>
+                    </div>
+                </div>
+
+                <!-- 状态面板 -->
+                <div id="status-panel" class="sidebar-panel hidden">
+                    <div class="status-panel-content">
+                        <div class="status-section">
+                            <div class="status-section-title">Bot 状态</div>
+                            <div class="status-card">
+                                <div class="status-bot-hero">
+                                    <span id="status-bot-avatar" class="status-bot-avatar">🤖</span>
+                                    <span id="status-bot-name" class="status-bot-name">-</span>
+                                    <button type="button" id="btn-edit-active-bot" class="btn-status-edit" onclick="editActiveBot()" title="编辑当前机器人">✎ 编辑</button>
+                                </div>
+                                <div class="status-kv-list">
+                                    <div class="status-kv-row">
+                                        <span class="status-kv-label">关联 API</span>
+                                        <span id="status-api-name" class="status-kv-value" title="">-</span>
+                                    </div>
+                                    <div class="status-kv-row">
+                                        <span class="status-kv-label">模型</span>
+                                        <span id="status-model-name" class="status-kv-value" title="">-</span>
+                                    </div>
+                                    <div class="status-kv-row">
+                                        <span class="status-kv-label">对话模式</span>
+                                        <span id="status-thinking" class="status-kv-value">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="status-section">
+                            <div class="status-section-title">上下文概览</div>
+                            <div class="status-ctx-grid">
+                                <div class="status-ctx-cell">
+                                    <span class="status-ctx-label">总容量</span>
+                                    <span id="status-ctx-max" class="status-ctx-value">-</span>
+                                </div>
+                                <div class="status-ctx-cell">
+                                    <span class="status-ctx-label">已使用</span>
+                                    <span id="status-ctx-used" class="status-ctx-value">-</span>
+                                </div>
+                                <div class="status-ctx-cell">
+                                    <span class="status-ctx-label">剩余</span>
+                                    <span id="status-ctx-remaining" class="status-ctx-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="status-section">
+                            <div class="status-capacity-header">
+                                <span class="status-section-title">容量使用</span>
+                                <span id="status-context-percent" class="status-percent-badge">0%</span>
+                            </div>
+                            <div id="status-context-bar-wrap" class="status-bar-wrap">
+                                <div id="status-context-bar" class="status-context-bar"></div>
+                            </div>
+                        </div>
+                        <div class="status-section">
+                            <div class="status-section-title">占用明细</div>
+                            <div class="status-breakdown">
+                                <div class="status-breakdown-item">
+                                    <div class="status-breakdown-head">
+                                        <span class="status-breakdown-label">灵魂 / 系统</span>
+                                        <span id="status-breakdown-system-val" class="status-breakdown-value">0</span>
+                                    </div>
+                                    <div class="status-breakdown-bar"><div id="status-breakdown-system" class="status-breakdown-fill"></div></div>
+                                </div>
+                                <div class="status-breakdown-item">
+                                    <div class="status-breakdown-head">
+                                        <span class="status-breakdown-label">压缩摘要</span>
+                                        <span id="status-breakdown-summary-val" class="status-breakdown-value">0</span>
+                                    </div>
+                                    <div class="status-breakdown-bar"><div id="status-breakdown-summary" class="status-breakdown-fill"></div></div>
+                                </div>
+                                <div class="status-breakdown-item">
+                                    <div class="status-breakdown-head">
+                                        <span class="status-breakdown-label">对话历史</span>
+                                        <span id="status-breakdown-messages-val" class="status-breakdown-value">0</span>
+                                    </div>
+                                    <div class="status-breakdown-bar"><div id="status-breakdown-messages" class="status-breakdown-fill"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="status-advice" class="status-advice hidden">
+                            <p id="status-advice-text"></p>
+                        </div>
+                        <div class="status-section status-compress-actions">
+                            <button type="button" class="btn-primary btn-compress-status" onclick="openCompressModal()">🗜 压缩上下文（含整理记忆）</button>
+                            <p class="form-hint status-compress-hint">将旧对话压成摘要并整理 memory/；可选填压缩方向</p>
+                        </div>
+                        <div class="status-section status-memory-section">
+                            <div class="status-section-title-row">
+                                <span class="status-section-title">记忆库</span>
+                                <div class="status-log-actions">
+                                    <button type="button" class="sidebar-btn-small" onclick="refreshMemoryPanel()">↻</button>
+                                    <button type="button" class="sidebar-btn-small" onclick="openMemoryFolder()" title="打开 memory 文件夹">📂</button>
+                                </div>
+                            </div>
+                            <p id="memory-panel-hint" class="form-hint">当前 Bot 的中期记忆与长文收藏</p>
+                            <div id="memory-entries-list" class="memory-list"></div>
+                            <div id="memory-items-list" class="memory-list"></div>
+                            <div id="memory-docs-list" class="memory-list memory-docs-list"></div>
+                            <p id="memory-empty-hint" class="form-hint hidden">暂无记忆条目</p>
+                        </div>
+                        <div class="status-section">
+                            <div class="status-section-title-row">
+                                <span class="status-section-title">API 日志</span>
+                                <div class="status-log-actions">
+                                    <button class="sidebar-btn-small" onclick="copyLogs()">📋 复制</button>
+                                    <button class="sidebar-btn-small" onclick="clearLogs()">🗑 清空</button>
+                                </div>
+                            </div>
+                            <div id="status-log-list" class="status-log-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <span id="sidebar-model-name" class="sidebar-model-name">-</span>
+                    <button type="button" id="btn-open-session-files" class="sidebar-btn-small" title="打开当前对话的文件目录">📁</button>
+                </div>
+
+            </div>
+
+            <button type="button" id="btn-sidebar-toggle" class="sidebar-toggle-edge" title="收起侧边栏" aria-label="收起侧边栏" aria-expanded="true">‹</button>
+
+            <!-- 拖拽手柄 -->
+            <div id="resize-handle" class="resize-handle"></div>
+
+            <div id="right-panel">
+                <!-- 聊天区域（编程模式可拖拽标题栏与预览对调位置） -->
+                <div id="chat-area">
+                <div id="chat-panel-header" class="code-panel-header">
+                    <span class="code-panel-grip" draggable="true" data-panel="chat" title="拖动以与预览对调位置" aria-label="拖动面板">⋮⋮</span>
+                    <span class="code-panel-title">对话</span>
+                    <span class="code-panel-sub">编程模式</span>
+                </div>
+                <div id="chat-container">
+                    <div id="chat-messages"></div>
+                </div>
+
+                <div id="message-queue" class="message-queue hidden"></div>
+                <div id="input-area">
+                    <div id="attachments-preview" class="attachments-preview hidden"></div>
+                    <div id="group-chain-bar" class="group-chain-bar hidden">
+                        <span id="group-chain-indicator" class="group-chain-indicator">接话链：—</span>
+                        <button type="button" id="btn-group-chain-refresh" class="btn-secondary btn-sm" title="重置接话链余额">↻ 刷新</button>
+                    </div>
+                    <div id="group-chain-exhausted" class="group-chain-exhausted hidden">本次接话链为 0，不再触发 Bot 互聊</div>
+                    <div id="code-mode-bar" class="code-mode-bar hidden">
+                        <button id="btn-new-task" class="btn-new-task">🆕 新任务</button>
+                    </div>
+                    <div id="composer-toolbar" class="composer-toolbar">
+                        <div class="composer-toolbar-group composer-group-thinking hidden" data-group="thinking">
+                            <span class="composer-toolbar-label">模式</span>
+                            <div class="composer-chips">
+                                <button type="button" class="composer-chip" data-field="composer-thinking-enabled" data-value="false">⚡ 快速</button>
+                                <button type="button" class="composer-chip" data-field="composer-thinking-enabled" data-value="true">🧠 思考</button>
+                            </div>
+                            <div class="composer-chips composer-depth-chips hidden" data-field="composer-thinking-depth-group">
+                                <button type="button" class="composer-chip" data-field="composer-thinking-depth" data-value="high">标准</button>
+                                <button type="button" class="composer-chip" data-field="composer-thinking-depth" data-value="max">加深</button>
+                            </div>
+                        </div>
+                        <div class="composer-toolbar-group" data-group="skills">
+                            <div class="composer-skills-wrap">
+                                <button type="button" id="btn-composer-skills" class="composer-chip composer-skills-btn">🔧 技能</button>
+                                <div id="composer-skills-popover" class="skills-popover hidden">
+                                    <p id="composer-skills-hint" class="skills-popover-hint"></p>
+                                    <div id="composer-skill-list" class="skill-list skills-popover-list"></div>
+                                    <p id="composer-skill-empty" class="form-hint hidden">将技能放入 <code>skills/</code> 后刷新</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <button id="btn-attach" class="icon-btn btn-attach" title="添加附件">📎</button>
+                        <div class="composer-field">
+                            <div class="composer-field-inner">
+                                <button type="button" id="btn-composer-mention" class="btn-mention-inline hidden" title="@ 成员（可多选）">@</button>
+                                <div id="mention-chips" class="mention-chips"></div>
+                                <textarea id="msg-input" placeholder="输入消息..." rows="1"></textarea>
+                            </div>
+                            <div id="mention-picker" class="mention-picker hidden">
+                                <div class="mention-picker-header">选择 @ 成员（可多选）</div>
+                                <div id="mention-picker-list" class="mention-picker-list"></div>
+                            </div>
+                        </div>
+                        <button id="btn-expert-mode" class="btn-expert-mode" title="专家模式（仅下一条消息）">🎯</button>
+                        <button id="btn-send" class="btn-send">▶</button>
+                        <button id="btn-stop" class="btn-stop hidden" title="停止生成">■</button>
+                        <button type="button" id="btn-estop" class="btn-estop hidden" title="急停：停止当前回复并取消后续 Bot 接话">急停</button>
+                    </div>
+                </div>
+            </div>
+
+                <div id="code-panel-split" class="code-panel-split hidden" title="拖动调整预览区宽度"></div>
+
+                <!-- 文件预览面板 -->
+                <div id="file-preview" class="file-preview hidden">
+                    <div class="preview-header code-panel-header">
+                        <span class="code-panel-grip" draggable="true" data-panel="preview" title="拖动以与对话对调位置" aria-label="拖动面板">⋮⋮</span>
+                        <span id="preview-filename" class="preview-filename"></span>
+                        <span id="editor-save-status" class="editor-save-status editor-status-saved" title="已保存">✓</span>
+                        <button type="button" id="btn-editor-save" class="preview-btn" title="保存 (Ctrl+S)">💾 保存</button>
+                        <button id="preview-close" class="preview-btn" title="关闭预览">✕</button>
+                    </div>
+                    <div id="preview-content" class="preview-content">
+                        <div id="preview-readonly-banner" class="preview-readonly-banner hidden"></div>
+                        <textarea id="code-editor-textarea" class="code-editor-textarea" spellcheck="false" wrap="off"></textarea>
+                    </div>
+                    <div id="preview-truncate-msg" class="preview-truncate-msg hidden"></div>
+                    <div class="preview-footer">
+                        <div class="preview-footer-left">
+                            <button id="btn-copy-content" class="preview-btn">📋 复制</button>
+                            <button id="btn-send-to-ai" class="preview-btn">💬 发送给AI分析</button>
+                        </div>
+                        <span id="preview-status" class="preview-status"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 文件操作确认弹窗 -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content confirm-modal-content">
+            <h3 class="confirm-title">⚠️ 文件操作确认</h3>
+            <div id="confirm-body"></div>
+            <div class="modal-actions">
+                <button id="confirm-reject" class="btn-secondary">拒绝</button>
+                <button id="confirm-accept" class="btn-primary">允许</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 回退弹窗 -->
+    <div id="rollback-modal" class="modal hidden">
+        <div class="modal-content rollback-modal-content">
+            <h3 class="confirm-title">↩ 文件回退</h3>
+            <div id="rollback-body"></div>
+            <div class="modal-actions">
+                <button id="rollback-cancel" class="btn-secondary">取消</button>
+                <button id="rollback-confirm" class="btn-primary">回退选中项</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量删除对话确认弹窗 -->
+    <div id="session-delete-modal" class="modal hidden">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3>删除对话</h3>
+            <p id="session-delete-modal-body" style="color: var(--text-secondary); font-size: 13px; margin: 12px 0 20px;"></p>
+            <div class="modal-actions">
+                <button id="session-delete-cancel" class="btn-secondary">取消</button>
+                <button id="session-delete-confirm" class="btn-danger-solid">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 压缩确认弹窗 -->
+    <div id="compress-modal" class="modal hidden">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3>🗜 压缩上下文</h3>
+            <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px;">
+                将把旧对话压缩为摘要，原始记录不会丢失。压缩本身会消耗一次 API 调用。
+            </p>
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label style="font-size: 12px; color: var(--text-secondary);">摘要详略</label>
+                <div class="toggle-group toggle-group-stretch compress-detail-toggle">
+                    <button type="button" class="toggle-btn" data-field="compress-detail-level" data-value="minimal">极简</button>
+                    <button type="button" class="toggle-btn active" data-field="compress-detail-level" data-value="standard">标准</button>
+                    <button type="button" class="toggle-btn" data-field="compress-detail-level" data-value="detailed">详尽</button>
+                    <button type="button" class="toggle-btn" data-field="compress-detail-level" data-value="max">琐碎 max</button>
+                </div>
+                <p id="compress-detail-max-hint" class="form-hint hidden">琐碎 max：摘要更长，会占用更多上下文；琐碎 max 且开启记忆写入时，可能额外摘录最多 3 条金句到 quote。</p>
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label style="font-size: 12px; color: var(--text-secondary);">压缩方向（可选）</label>
+                <textarea id="compress-direction" class="compress-direction" placeholder="告诉 AI 压缩时保留什么、丢弃什么，例如：聚焦 API 模块的重构，保留数据模型讨论，丢弃 UI 和调试过程" rows="3" maxlength="200"></textarea>
+                <div style="font-size: 11px; color: var(--text-secondary); text-align: right;">最多 200 字符</div>
+            </div>
+            <div class="modal-actions">
+                <button id="compress-cancel" class="btn-secondary">取消</button>
+                <button id="compress-confirm" class="btn-primary">确认压缩</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 压缩阶段进度 -->
+    <div id="compress-progress" class="compress-progress hidden" role="status" aria-live="polite">
+        <div class="compress-progress-title">🗜 压缩中…</div>
+        <ul id="compress-progress-steps" class="compress-progress-steps"></ul>
+        <div class="compress-progress-bar" aria-hidden="true">
+            <div class="compress-progress-bar-inner"></div>
+        </div>
+    </div>
+
+    <!-- 机器人下拉菜单 -->
+    <div id="bot-dropdown" class="dropdown hidden"></div>
+
+    <!-- 机器人管理弹窗 -->
+    <div id="bot-manager-modal" class="modal hidden">
+        <div class="modal-content bot-manager-content" id="bot-manager-panel">
+            <div class="config-header">
+                <h2>🤖 机器人管理</h2>
+                <button type="button" id="btn-bot-manager-close" class="preview-btn" title="关闭">✕</button>
+            </div>
+            <div id="bot-list" class="bot-list"></div>
+            <button type="button" id="btn-add-bot" class="btn-add-bot">+ 添加机器人</button>
+        </div>
+    </div>
+
+    <!-- 机器人编辑弹窗 -->
+    <div id="bot-edit-modal" class="modal hidden">
+        <div class="modal-content bot-edit-content">
+            <header class="bot-edit-header">
+                <div>
+                    <h2 id="bot-edit-title">编辑机器人</h2>
+                    <p class="bot-edit-subtitle">每个 Bot 可独立选择模型、人设与对话模式</p>
+                </div>
+                <button type="button" class="bot-edit-close preview-btn" onclick="hideBotEditModal()" aria-label="关闭">✕</button>
+            </header>
+
+            <div class="bot-edit-form">
+                <!-- 身份 -->
+                <section class="bot-edit-card">
+                    <div class="bot-edit-hero">
+                        <button type="button" class="bot-edit-avatar-btn" onclick="openBotEmojiPicker()" title="点击更换头像">
+                            <span id="bot-edit-avatar" class="avatar-preview">🤖</span>
+                            <span class="bot-edit-avatar-tip">换头像</span>
+                        </button>
+                        <div class="bot-edit-hero-field form-group">
+                            <label for="bot-edit-name">名称</label>
+                            <input id="bot-edit-name" type="text" placeholder="给机器人起个名字">
+                        </div>
+                    </div>
+                    <div class="form-group bot-edit-api-row">
+                        <label for="bot-edit-profile">模型选择</label>
+                        <div class="bot-edit-api-wrap">
+                            <select id="bot-edit-profile"></select>
+                            <span id="bot-edit-provider-tag" class="provider-tag hidden">-</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 人设 -->
+                <section class="bot-edit-card">
+                    <h3 class="bot-edit-card-title"><span class="bot-edit-card-icon">✨</span> 人设 · Soul</h3>
+                    <div class="form-group">
+                        <label for="bot-edit-soul">灵魂文件夹</label>
+                        <div class="form-row form-row-inline soul-folder-row">
+                            <input id="bot-edit-soul" type="text" placeholder="souls/你的bot-id" readonly>
+                            <button type="button" class="btn-secondary btn-inline" onclick="browseSoulFolder()">浏览</button>
+                        </div>
+                        <div id="soul-preview" class="soul-preview hidden"></div>
+                    </div>
+                </section>
+
+                <!-- 模型参数 -->
+                <section class="bot-edit-card">
+                    <h3 class="bot-edit-card-title"><span class="bot-edit-card-icon">⚙</span> 模型参数</h3>
+                    <p class="bot-edit-card-desc">留空则使用供应商的默认值</p>
+                    <div class="form-group">
+                        <label for="bot-edit-model">自定义模型名</label>
+                        <input id="bot-edit-model" type="text" placeholder="留空则用上方选择的模型">
+                    </div>
+                    <div class="bot-edit-params-grid">
+                        <div class="form-group">
+                            <label for="bot-edit-temp">Temperature</label>
+                            <input id="bot-edit-temp" type="number" step="0.1" min="0" max="2" placeholder="默认">
+                        </div>
+                        <div class="form-group">
+                            <label for="bot-edit-max">Max Tokens</label>
+                            <input id="bot-edit-max" type="number" placeholder="默认">
+                        </div>
+                        <div class="form-group bot-edit-span-2">
+                            <label for="bot-edit-max-context">上下文容量</label>
+                            <input id="bot-edit-max-context" type="number" placeholder="如 65536、128000">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- DeepSeek 对话模式 -->
+                <section id="thinking-section" class="bot-edit-card bot-edit-card--deepseek hidden">
+                    <h3 class="bot-edit-card-title"><span class="bot-edit-card-icon">🧠</span> DeepSeek 对话模式</h3>
+                    <p class="bot-edit-card-desc">仅对 DeepSeek API 生效，可随时切换</p>
+
+                    <div class="mode-select">
+                        <button type="button" class="mode-card toggle-btn" data-field="thinking-enabled" data-value="false">
+                            <span class="mode-card-icon">⚡</span>
+                            <span class="mode-card-title">快速模式</span>
+                            <span class="mode-card-desc">无思维链 · 可调温度</span>
+                        </button>
+                        <button type="button" class="mode-card toggle-btn" data-field="thinking-enabled" data-value="true">
+                            <span class="mode-card-icon">🧠</span>
+                            <span class="mode-card-title">思考模式</span>
+                            <span class="mode-card-desc">先思维链 · 再正文</span>
+                        </button>
+                    </div>
+                    <p id="thinking-mode-hint-fast" class="form-hint mode-hint">适合日常问答，响应更快。</p>
+                    <p id="thinking-mode-hint-think" class="form-hint mode-hint hidden">复杂推理更合适；Temperature 不会传给 API。</p>
+
+                    <div id="thinking-depth-row" class="thinking-depth-block hidden">
+                        <label class="thinking-depth-label">思考深度</label>
+                        <div class="toggle-group toggle-group-stretch">
+                            <button type="button" class="toggle-btn" data-field="thinking-depth" data-value="high">标准 high</button>
+                            <button type="button" class="toggle-btn" data-field="thinking-depth" data-value="max">加深 max</button>
+                        </div>
+                    </div>
+                    <p id="thinking-temp-warning" class="form-hint warning hidden">思考模式下，上方 Temperature 不生效</p>
+                </section>
+
+                <!-- 记忆 -->
+                <section class="bot-edit-card">
+                    <h3 class="bot-edit-card-title"><span class="bot-edit-card-icon">🧠</span> 记忆</h3>
+                    <p class="bot-edit-card-desc">读写与自动压缩；「跟随全局」则使用 ⚙ 设置默认值</p>
+                    <label class="bot-edit-sub-label">记忆读写</label>
+                    <div class="toggle-group toggle-group-stretch bot-memory-source">
+                        <button type="button" class="toggle-btn" data-field="memory-source" data-value="global">跟随全局</button>
+                        <button type="button" class="toggle-btn" data-field="memory-source" data-value="custom">此 Bot 自定义</button>
+                    </div>
+                    <div id="bot-memory-custom" class="hidden">
+                        <div class="form-group config-log-row">
+                            <label>启用记忆</label>
+                            <div class="toggle-group toggle-group-stretch">
+                                <button type="button" class="toggle-btn" data-field="bot-memory-enabled" data-value="false">关</button>
+                                <button type="button" class="toggle-btn" data-field="bot-memory-enabled" data-value="true">开</button>
+                            </div>
+                        </div>
+                        <div class="form-group config-log-row">
+                            <label>允许写入（关=仅检索）</label>
+                            <div class="toggle-group toggle-group-stretch">
+                                <button type="button" class="toggle-btn" data-field="bot-memory-write-enabled" data-value="false">否</button>
+                                <button type="button" class="toggle-btn" data-field="bot-memory-write-enabled" data-value="true">是</button>
+                            </div>
+                        </div>
+                    </div>
+                    <label class="bot-edit-sub-label">自动压缩</label>
+                    <div class="toggle-group toggle-group-stretch bot-auto-compress-source">
+                        <button type="button" class="toggle-btn" data-field="auto-compress-source" data-value="global">跟随全局</button>
+                        <button type="button" class="toggle-btn" data-field="auto-compress-source" data-value="custom">此 Bot 自定义</button>
+                    </div>
+                    <div id="bot-auto-compress-custom" class="hidden">
+                        <div class="form-group config-log-row">
+                            <label>自动压缩</label>
+                            <div class="toggle-group toggle-group-stretch">
+                                <button type="button" class="toggle-btn" data-field="bot-memory-auto-extract" data-value="false">关</button>
+                                <button type="button" class="toggle-btn" data-field="bot-memory-auto-extract" data-value="true">开</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="bot-auto-compress-threshold">
+                                压缩阈值 <span id="bot-auto-compress-threshold-val" class="range-value">85%</span>
+                            </label>
+                            <input type="range" id="bot-auto-compress-threshold" min="50" max="98" step="1" value="85">
+                        </div>
+                    </div>
+                    <label class="bot-edit-sub-label">摘要详略（自动压缩默认）</label>
+                    <div class="toggle-group toggle-group-stretch bot-compress-detail-source">
+                        <button type="button" class="toggle-btn" data-field="compress-detail-source" data-value="global">跟随全局</button>
+                        <button type="button" class="toggle-btn" data-field="compress-detail-source" data-value="custom">此 Bot 自定义</button>
+                    </div>
+                    <div id="bot-compress-detail-custom" class="hidden">
+                        <div class="form-group">
+                            <label for="bot-compress-summary-detail">默认档位</label>
+                            <select id="bot-compress-summary-detail">
+                                <option value="minimal">极简</option>
+                                <option value="standard">标准</option>
+                                <option value="detailed">详尽</option>
+                                <option value="max">琐碎 max</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 12px;">
+                        <button type="button" class="btn-danger" id="btn-clear-bot-memory" onclick="clearBotMemory()">清空此 Bot 的全部记忆</button>
+                        <p class="form-hint">删除该 Bot 灵魂文件夹下的所有记忆（entries、items、docs、memory.md、索引）。此操作不可撤销，需三次确认。</p>
+                    </div>
+                </section>
+
+                <!-- 技能 -->
+                <section class="bot-edit-card">
+                    <h3 class="bot-edit-card-title"><span class="bot-edit-card-icon">🔧</span> 技能</h3>
+                    <div class="toggle-group toggle-group-stretch bot-skills-source">
+                        <button type="button" class="toggle-btn" data-field="skills-source" data-value="global">跟随全局</button>
+                        <button type="button" class="toggle-btn" data-field="skills-source" data-value="custom">仅此 Bot 自定义</button>
+                    </div>
+                    <p id="bot-skills-global-hint" class="form-hint">使用 ⚙ 设置中的全局技能勾选，所有模型共用同一套。</p>
+                    <div id="bot-skill-custom-wrap" class="hidden">
+                        <div id="bot-skill-list" class="skill-list"></div>
+                        <p id="bot-skill-empty" class="form-hint hidden">将技能放入 <code>skills/</code> 目录后刷新</p>
+                    </div>
+                </section>
+
+                <input type="hidden" id="bot-edit-id" value="">
+            </div>
+
+            <footer class="bot-edit-footer modal-actions">
+                <button type="button" class="btn-secondary" onclick="hideBotEditModal()">取消</button>
+                <button type="button" class="btn-primary" onclick="saveBot()">保存</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Emoji 选择器弹窗 -->
+    <div id="emoji-picker-modal" class="modal hidden">
+        <div class="modal-content emoji-picker-content">
+            <div class="config-header">
+                <h2>选择头像</h2>
+                <button class="preview-btn" onclick="hideEmojiPicker()">✕</button>
+            </div>
+            <div class="emoji-picker-body">
+                <div class="emoji-category">
+                    <h4>正常的</h4>
+                    <div id="emoji-normal" class="emoji-grid"></div>
+                </div>
+                <div class="emoji-category">
+                    <h4>抽象的</h4>
+                    <div id="emoji-abstract" class="emoji-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/providers.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/bot.js"></script>
+    <script src="js/composer.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/group.js"></script>
+    <script src="js/preview.js"></script>
+    <script src="js/code-editor.js"></script>
+    <script src="js/code-layout.js"></script>
+    <script src="js/ops.js"></script>
+    <script src="js/memory.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

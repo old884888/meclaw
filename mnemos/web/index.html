@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MNEMOS</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">M</span>
+      <span class="brand-name">MNEMOS</span>
+    </div>
+    <div id="current-title" class="topbar-title">选择 Bot</div>
+    <div class="topbar-actions">
+      <button id="btn-back-home" class="btn btn-ghost hidden">← 返回首页</button>
+      <button id="btn-arrange" class="btn btn-soft">整理</button>
+      <button id="btn-brain-status" type="button" class="btn btn-brain-status brain-status-idle hidden" title="超级大脑状态">
+        <span class="brain-status-icon">🧠</span>
+        <span id="brain-status-label" class="brain-status-label">大脑空闲</span>
+      </button>
+      <button id="btn-open-help" type="button" class="btn btn-soft">说明书</button>
+      <button id="btn-open-settings" class="btn btn-soft">设置</button>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section id="view-home" class="view-home anim-screen">
+      <div id="launcher-grid" class="launcher-grid"></div>
+      <p id="launcher-hint" class="launcher-hint">点击 Bot 进入对话 · 编辑可配置人格与大脑 · 右上角「整理」可拖动排序</p>
+    </section>
+
+    <section id="view-chat-workspace" class="layout anim-screen hidden">
+      <aside class="sidebar">
+        <div class="sidebar-panel">
+          <div class="sidebar-header">
+            <strong id="sidebar-title">会话</strong>
+            <button id="btn-new-session" class="btn btn-primary btn-sm">+ 新建对话</button>
+          </div>
+          <div id="sidebar-list" class="sidebar-list"></div>
+        </div>
+      </aside>
+
+      <section class="main-area">
+        <div id="view-chat" class="view-panel">
+          <div id="setup-hint" class="setup-hint hidden"></div>
+          <div id="chat-messages" class="chat-messages"></div>
+          <div class="composer">
+            <div id="usage-hint" class="usage-hint">约 0 条消息</div>
+            <textarea id="msg-input" placeholder="输入消息…" rows="3"></textarea>
+            <div class="composer-actions">
+              <button id="btn-stop" class="btn btn-secondary hidden">停止</button>
+              <button id="btn-send" class="btn btn-primary">发送</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div id="bot-editor-modal" class="modal hidden">
+    <div class="modal-panel sheet bot-editor-sheet">
+      <div class="modal-header">
+        <h3 id="bot-editor-title">编辑 Bot</h3>
+        <button id="btn-close-bot-editor" class="btn btn-ghost">✕</button>
+      </div>
+      <form id="bot-editor-form" class="form bot-editor-form">
+        <input type="hidden" id="editor-bot-id">
+
+        <section class="editor-section">
+          <h4>基础信息</h4>
+          <div class="editor-grid editor-grid-basic">
+            <label class="editor-field">名称 <input id="editor-bot-name" required></label>
+            <div class="avatar-field editor-field">
+              <div class="avatar-field-label">头像</div>
+              <div class="avatar-picker">
+                <div class="avatar-picker-current">
+                  <span id="editor-bot-avatar-preview" class="avatar-preview avatar-preview-lg" aria-hidden="true">🤖</span>
+                  <div class="avatar-picker-meta">
+                    <span id="editor-bot-avatar-label" class="avatar-picker-label">当前头像</span>
+                    <button type="button" id="btn-toggle-avatar-library" class="btn btn-ghost btn-sm avatar-picker-toggle" aria-expanded="false">展开头像库</button>
+                  </div>
+                </div>
+                <input type="hidden" id="editor-bot-avatar" value="🤖">
+                <div id="editor-avatar-library" class="avatar-library hidden">
+                  <div id="editor-avatar-grid" class="avatar-grid"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="editor-section">
+          <h4>大脑</h4>
+          <div id="editor-brain-status" class="brain-status"></div>
+          <div class="editor-grid editor-grid-2 editor-grid-models">
+            <label class="editor-field">绑定供应商
+              <select id="editor-bot-profile"></select>
+            </label>
+            <label id="editor-bot-model-wrap" class="editor-field hidden">使用模型
+              <select id="editor-bot-model"></select>
+            </label>
+            <label id="editor-bot-background-model-wrap" class="editor-field editor-field-span-2 hidden">后台模型（摘要 / 记忆提取）
+              <select id="editor-bot-background-model"></select>
+            </label>
+          </div>
+          <div class="editor-subsection">
+            <div class="editor-subsection-title">模型角色</div>
+            <p class="field-hint">留空继承后台模型或主模型。提取与摘要可分别指定更便宜的模型。</p>
+            <div class="editor-grid editor-grid-2 editor-grid-models">
+              <label id="editor-role-extraction-wrap" class="editor-field hidden">记忆提取
+                <select id="editor-role-extraction-model"></select>
+              </label>
+              <label id="editor-role-summary-wrap" class="editor-field hidden">上下文摘要
+                <select id="editor-role-summary-model"></select>
+              </label>
+            </div>
+          </div>
+          <div class="editor-reasoning-block">
+            <div class="editor-reasoning-toolbar">
+              <label class="toggle-row editor-reasoning-toggle">
+                <span>深度思考</span>
+                <input type="checkbox" id="editor-bot-reasoning-enabled">
+              </label>
+              <label class="editor-field editor-field-compact">思考强度
+                <select id="editor-bot-reasoning-level">
+                  <option value="off">关闭</option>
+                  <option value="low">低</option>
+                  <option value="medium">中</option>
+                  <option value="high">高</option>
+                </select>
+              </label>
+              <label class="toggle-row editor-reasoning-toggle">
+                <span>显示思考过程</span>
+                <input type="checkbox" id="editor-bot-reasoning-visible" checked>
+              </label>
+            </div>
+            <p class="field-hint editor-reasoning-hint">开启思考可能增加延迟与费用，并可能降低 prefix cache 命中率。DeepSeek 实际为两档：低/中→标准，高→深度；Anthropic 等仍按三档 token 预算。</p>
+          </div>
+          <p class="field-hint">供应商在右上角「设置」中管理。绑定后从该供应商的模型列表中选择具体模型。</p>
+        </section>
+
+        <section class="editor-section">
+          <h4>AI 超级大脑（Bot 覆盖）</h4>
+          <p class="field-hint">留空即继承全局默认值，仅在该 Bot 生效。</p>
+          <p id="editor-brains-defaults" class="field-hint field-hint-strong"></p>
+          <div class="editor-subsection">
+            <div class="editor-subsection-title">模块开关</div>
+            <div class="bot-brains-grid bot-brains-switches">
+              <label class="editor-field">右脑（人格）
+                <select id="editor-brain-persona">
+                  <option value="">继承全局</option>
+                  <option value="true">启用</option>
+                  <option value="false">关闭</option>
+                </select>
+              </label>
+              <label class="editor-field">记忆脑
+                <select id="editor-brain-memory">
+                  <option value="">继承全局</option>
+                  <option value="true">启用</option>
+                  <option value="false">关闭</option>
+                </select>
+              </label>
+              <label class="editor-field">左脑
+                <select id="editor-brain-cognitive">
+                  <option value="">继承全局</option>
+                  <option value="true">启用</option>
+                  <option value="false">关闭</option>
+                </select>
+              </label>
+              <label class="editor-field">学习脑
+                <select id="editor-brain-learner">
+                  <option value="">继承全局</option>
+                  <option value="true">启用</option>
+                  <option value="false">关闭</option>
+                </select>
+              </label>
+              <label class="editor-field">记忆检索
+                <select id="editor-brain-memory-retrieval">
+                  <option value="">继承全局</option>
+                  <option value="true">启用</option>
+                  <option value="false">关闭</option>
+                </select>
+              </label>
+              <label class="editor-field">记忆写入
+                <select id="editor-brain-memory-write">
+                  <option value="">继承全局</option>
+                  <option value="true">启用</option>
+                  <option value="false">关闭</option>
+                </select>
+              </label>
+              <label class="editor-field editor-field-span-2">每轮提取 L1
+                <select id="editor-brain-l1-every-turn">
+                  <option value="">继承全局</option>
+                  <option value="true">启用</option>
+                  <option value="false">关闭</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div class="editor-subsection">
+            <div class="editor-subsection-title">Token 预算</div>
+            <div class="bot-brains-grid bot-brains-budgets">
+              <label class="editor-field">记忆
+                <input id="editor-brain-memory-budget" type="number" min="100" step="50" placeholder="留空继承">
+              </label>
+              <label class="editor-field">人格
+                <input id="editor-brain-persona-budget" type="number" min="50" step="50" placeholder="留空继承">
+              </label>
+              <label class="editor-field">左脑
+                <input id="editor-brain-cognitive-budget" type="number" min="0" step="50" placeholder="留空继承">
+              </label>
+              <label class="editor-field">保护区
+                <input id="editor-brain-protection-zone" type="number" min="1000" step="500" placeholder="留空继承">
+              </label>
+            </div>
+          </div>
+          <div class="editor-subsection">
+            <div class="editor-subsection-title">压缩与摘要</div>
+            <div class="bot-brains-grid bot-brains-compress">
+              <label class="editor-field">Tier1%
+                <input id="editor-brain-tier1" type="number" min="40" max="90" step="5" placeholder="留空继承">
+              </label>
+              <label class="editor-field">Tier2%
+                <input id="editor-brain-tier2" type="number" min="60" max="98" step="5" placeholder="留空继承">
+              </label>
+              <label class="editor-field">Tier3%
+                <input id="editor-brain-tier3" type="number" min="80" max="100" step="1" placeholder="留空继承">
+              </label>
+              <label class="editor-field">摘要最大字数
+                <input id="editor-brain-summary-max" type="number" min="500" step="100" placeholder="留空继承">
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="editor-section">
+          <h4>人格</h4>
+          <div class="editor-grid editor-grid-2 editor-grid-files">
+            <div class="file-field">
+              <div class="file-field-head">
+                <span class="file-field-title">Soul</span>
+                <span id="editor-soul-source" class="file-field-source">未选择文件</span>
+              </div>
+              <div class="file-field-actions">
+                <input type="file" id="editor-soul-file" accept=".md,.txt,.markdown" hidden>
+                <button type="button" id="btn-pick-soul-file" class="btn btn-secondary btn-sm">选择本地文件</button>
+                <select id="editor-soul-library" class="file-library-select">
+                  <option value="">从已有 Soul 选择…</option>
+                </select>
+              </div>
+            </div>
+            <div class="file-field">
+              <div class="file-field-head">
+                <span class="file-field-title">Constraints（可选）</span>
+                <span id="editor-constraints-source" class="file-field-source">未选择文件</span>
+              </div>
+              <div class="file-field-actions">
+                <input type="file" id="editor-constraints-file" accept=".md,.txt,.markdown" hidden>
+                <button type="button" id="btn-pick-constraints-file" class="btn btn-secondary btn-sm">选择本地文件</button>
+                <select id="editor-constraints-library" class="file-library-select">
+                  <option value="">从已有 Constraints 选择…</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <p class="field-hint">支持选择本地 Markdown/文本文件，或从其他 Bot 的 Soul 文件复制。保存时会写入当前 Bot 的 <code>souls/{bot_id}/</code> 目录。</p>
+        </section>
+
+        <section class="editor-section">
+          <h4>高级参数</h4>
+          <div class="editor-grid editor-grid-2">
+            <label class="editor-field">temperature（可空） <input id="editor-bot-temperature" placeholder="0.7"></label>
+            <label class="editor-field">max_tokens（可空） <input id="editor-bot-max-tokens" placeholder="4096"></label>
+          </div>
+          <div class="file-field">
+            <div class="file-field-head">
+              <span class="file-field-title">当前生效上下文窗口（max_context）</span>
+              <span id="editor-bot-max-context" class="file-field-source">—</span>
+            </div>
+            <p class="field-hint">只读：由绑定供应商的 <code>max_context</code> 决定。如需调整，请在「设置 → 供应商」编辑对应供应商。</p>
+          </div>
+        </section>
+
+        <div class="editor-form-actions row">
+          <button type="button" id="btn-cancel-bot-editor" class="btn btn-secondary">取消</button>
+          <button type="submit" class="btn btn-primary">保存 Bot</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-panel sheet">
+      <div class="modal-header">
+        <h3>设置</h3>
+        <button id="btn-close-settings" class="btn btn-ghost">✕</button>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="providers">供应商</button>
+        <button class="tab" data-tab="brains">AI 超级大脑</button>
+        <button class="tab" data-tab="data">数据</button>
+      </div>
+      <div id="settings-tab-stage" class="settings-tab-stage">
+        <section id="tab-providers" class="tab-content tab-content-providers">
+          <p class="settings-intro">先在这里新增供应商（大脑），再回到首页编辑 Bot 并绑定。</p>
+          <div class="settings-section">
+            <div class="settings-section-head">
+              <h4>已配置供应商</h4>
+              <span id="providers-count" class="settings-section-meta">0 个</span>
+            </div>
+            <div id="providers-list" class="card-list provider-card-list"></div>
+          </div>
+          <div class="settings-section provider-form-section">
+            <div class="settings-section-head">
+              <h4 id="provider-form-title">供应商配置</h4>
+              <button type="button" id="btn-show-provider-form" class="btn btn-primary btn-sm">新建供应商</button>
+            </div>
+            <form id="provider-form" class="form provider-form hidden">
+              <input type="hidden" id="provider-id">
+              <label>名称 <input id="provider-name" required></label>
+              <label>Base URL <input id="provider-base-url" placeholder="https://api.example.com/v1" required></label>
+              <p class="field-hint">填到 <code>/v1</code> 即可；若已含 <code>/chat/completions</code> 也可直接使用。</p>
+              <label>API Key <input id="provider-api-key" placeholder="留空表示保持不变"></label>
+              <div class="provider-models-field">
+                <div class="provider-models-head">
+                  <div class="field-label">模型列表</div>
+                  <button type="button" id="btn-add-provider-model" class="btn btn-secondary btn-sm model-entry-add">+ 添加</button>
+                </div>
+                <div id="provider-models-list" class="model-entry-list"></div>
+              </div>
+              <p class="field-hint">可添加多个模型 ID。Bot 编辑时将从此列表选择；连接测试使用第一个。</p>
+              <label>协议类型
+                <select id="provider-type">
+                  <option value="generic">generic (OpenAI compatible)</option>
+                  <option value="anthropic">anthropic</option>
+                </select>
+              </label>
+              <label>最长上下文 max_context <input id="provider-max-context" type="number" min="1024" step="1024" placeholder="65536"></label>
+              <p class="field-hint">该供应商模型的上下文窗口（token）。绑定此供应商的 Bot 将以此作为压缩与预算的上限。</p>
+              <label>temperature（可空） <input id="provider-temperature" placeholder="留空使用默认"></label>
+              <label>max_tokens（可空） <input id="provider-max-tokens" type="number" min="1" step="1" placeholder="4096"></label>
+              <label class="toggle-row"><span>启用该供应商</span><input type="checkbox" id="provider-enabled" checked></label>
+              <div class="provider-optimizations-field">
+                <div class="field-label">模型优化</div>
+                <div id="provider-optimizations" class="optimization-picker" role="group" aria-label="模型优化">
+                  <button type="button" class="opt-pill active" data-opt="">无</button>
+                  <button type="button" class="opt-pill" data-opt="deepseek">deepseek</button>
+                </div>
+                <p class="field-hint">选择 deepseek 可启用针对 DeepSeek 的参数优化；与协议类型独立，可搭配 OpenAI 兼容接口使用。</p>
+              </div>
+              <div class="row provider-form-actions">
+                <button type="button" id="btn-provider-cancel" class="btn btn-secondary">取消</button>
+                <button type="button" id="btn-provider-clear" class="btn btn-ghost">清空</button>
+                <button type="submit" class="btn btn-primary">保存供应商</button>
+              </div>
+            </form>
+          </div>
+        </section>
+        <section id="tab-brains" class="tab-content tab-content-stack hidden">
+          <p class="settings-intro">配置平台默认AI 超级大脑参数。Bot 未单独配置时继承这里的值。</p>
+          <form id="brains-form" class="form single-col brains-form">
+            <div class="settings-section">
+              <h4>总开关</h4>
+              <label class="toggle-row">
+                <span>启用AI 超级大脑编排</span>
+                <input type="checkbox" id="cfg-multi-brain-enabled">
+              </label>
+              <label class="toggle-row">
+                <span>调试：推送 brain_trace 事件</span>
+                <input type="checkbox" id="cfg-brain-trace-enabled">
+              </label>
+            </div>
+            <div class="settings-section">
+              <h4>各脑子开关</h4>
+              <label class="toggle-row"><span>右脑（人格 / 画像）</span><input type="checkbox" id="cfg-brain-persona"></label>
+              <label class="toggle-row"><span>记忆脑（召回 / 写入）</span><input type="checkbox" id="cfg-brain-memory"></label>
+              <label class="toggle-row"><span>左脑（规划 / 实现，按需）</span><input type="checkbox" id="cfg-brain-cognitive"></label>
+              <label class="toggle-row"><span>学习脑（后台信号）</span><input type="checkbox" id="cfg-brain-learner"></label>
+            </div>
+            <div class="settings-section">
+              <h4>记忆与检索</h4>
+              <label class="toggle-row"><span>记忆检索</span><input type="checkbox" id="cfg-memory-retrieval"></label>
+              <label class="toggle-row"><span>记忆写入</span><input type="checkbox" id="cfg-memory-write"></label>
+              <label class="toggle-row"><span>每轮提取 L1 原子记忆</span><input type="checkbox" id="cfg-l1-every-turn"></label>
+              <label>记忆检索策略
+                <select id="cfg-memory-retrieval-strategy">
+                  <option value="hybrid">hybrid（FTS + 语义，推荐）</option>
+                  <option value="fts">fts（纯关键词）</option>
+                </select>
+              </label>
+              <label>知识检索策略
+                <select id="cfg-knowledge-retrieval-strategy">
+                  <option value="hybrid">hybrid（FTS + 语义，推荐）</option>
+                  <option value="fts">fts（纯关键词）</option>
+                </select>
+              </label>
+              <label>记忆 token 预算 <input type="number" id="cfg-memory-budget" min="100" max="8000" step="50"></label>
+              <label>人格 token 预算 <input type="number" id="cfg-persona-budget" min="50" max="4000" step="50"></label>
+              <label>左脑 token 预算 <input type="number" id="cfg-cognitive-budget" min="0" max="2000" step="50"></label>
+              <label>L2 摘要间隔（每 N 轮） <input type="number" id="cfg-l2-every" min="1" max="50" step="1"></label>
+              <label>L3 画像聚合间隔（每 N 个原子） <input type="number" id="cfg-l3-every" min="1" max="100" step="1"></label>
+            </div>
+            <div class="settings-section">
+              <h4>上下文与压缩</h4>
+              <label>保护区 token <input type="number" id="cfg-protection-zone" min="1000" max="32000" step="500"></label>
+              <label>压缩 Tier1% <input type="number" id="cfg-tier1" min="40" max="90" step="5"></label>
+              <label>压缩 Tier2% <input type="number" id="cfg-tier2" min="60" max="98" step="5"></label>
+              <label>压缩 Tier3% <input type="number" id="cfg-tier3" min="80" max="100" step="1"></label>
+              <label>摘要最大字数 <input type="number" id="cfg-summary-max" min="500" max="6000" step="100"></label>
+            </div>
+            <div class="settings-section">
+              <h4>学习脑</h4>
+              <label>后台学习调度（cron） <input type="text" id="cfg-learner-schedule" placeholder="0 3 * * *"></label>
+              <p class="field-hint">学习脑开关在上方「各脑子开关」中；此处配置后台信号采集的 cron 调度。</p>
+            </div>
+            <div class="row">
+              <button type="submit" class="btn btn-primary">保存 AI 超级大脑设置</button>
+            </div>
+          </form>
+        </section>
+        <section id="tab-data" class="tab-content tab-content-stack hidden">
+          <div class="form single-col">
+            <p>本地数据目录</p>
+            <code id="data-dir-path" class="data-dir-path">加载中…</code>
+            <p class="item-sub">会话历史滚动备份：<strong id="history-backup-generations">-</strong> 代（<code>*.json.bak1</code> …）。若主文件损坏，可将最近备份复制回原文件名恢复。</p>
+            <p class="item-sub">导出 ZIP 包含 config、会话历史与 Soul。其中含 API Key 等敏感信息，请妥善保管。</p>
+            <button id="btn-export-data" type="button" class="btn btn-primary">导出备份 ZIP</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="help-modal" class="modal hidden">
+    <div class="modal-panel sheet help-manual-sheet">
+      <div class="modal-header">
+        <h3>MNEMOS 使用说明书</h3>
+        <button id="btn-close-help" type="button" class="btn btn-ghost">✕</button>
+      </div>
+      <div class="help-manual-body">
+        <section class="help-section">
+          <h4>1. 快速上手流程</h4>
+          <ol>
+            <li>右上角 <strong>设置 → 供应商</strong>：填写 Base URL、API Key、模型列表，点 <strong>测试</strong> 确认连通。</li>
+            <li>首页点 Bot 卡片 <strong>编辑</strong>：绑定供应商、选主模型；可选后台模型与AI 超级大脑覆盖。</li>
+            <li>点击 Bot 进入对话 → <strong>+ 新建对话</strong> → 发送消息，流式回复即表示链路正常。</li>
+          </ol>
+        </section>
+        <section class="help-section">
+          <h4>2. 核心概念</h4>
+          <ul>
+            <li><strong>供应商</strong>：平台级 API 配置（URL / Key / 模型列表），多个 Bot 可共用。</li>
+            <li><strong>Bot</strong>：独立人格（Soul）、约束、模型与AI 超级大脑策略；记忆数据按 Bot 隔离在 <code>souls/{bot_id}/memory/</code>。</li>
+            <li><strong>主模型</strong>：用户可见的主对话模型。</li>
+            <li><strong>后台模型</strong>：摘要、L1 记忆提取等后台任务；留空则继承主模型。</li>
+          </ul>
+        </section>
+        <section class="help-section">
+          <h4>3. AI 超级大脑编排（每轮按需激活）</h4>
+          <p>开启后，系统不会每轮塞满所有模块，而是按意图与配置分层注入上下文，节省 token。</p>
+          <ul>
+            <li><strong>执行脑</strong>：主对话流式回复（始终参与）。</li>
+            <li><strong>右脑</strong>：人格 / 用户画像片段（Persona）。</li>
+            <li><strong>记忆脑</strong>：召回 L0–L3 与会话摘要相关记忆。</li>
+            <li><strong>左脑</strong>：规划 / 实现类问题按需注入（关键词触发）。</li>
+            <li><strong>学习脑</strong>：后台收集信号，供后续学习迭代（默认关闭）。</li>
+          </ul>
+          <p>全局 <strong>设置 → AI 超级大脑</strong> 为平台默认；Bot 编辑里可单独覆盖开关与预算。</p>
+        </section>
+        <section class="help-section">
+          <h4>4. 记忆分层（个人对话向）</h4>
+          <ul>
+            <li><strong>L0</strong>：原始轮次证据（每轮写入）。</li>
+            <li><strong>L1</strong>：原子记忆（偏好 / 事实 / 约束 / 待办），可每轮 LLM 或启发式提取。</li>
+            <li><strong>L2</strong>：会话级摘要（周期性更新）。</li>
+            <li><strong>L3</strong>：用户长期画像（低频聚合）。</li>
+          </ul>
+        </section>
+        <section class="help-section">
+          <h4>5. 上下文压缩（Tier 1–3）</h4>
+          <ol>
+            <li><strong>Tier 1</strong>：超长单条消息裁剪。</li>
+            <li><strong>Tier 2</strong>：历史消息替换为占位引用（保护最近对话区）。</li>
+            <li><strong>Tier 3</strong>：触发增量 LLM 运行摘要，用摘要 + 保护区消息重建 API 上下文。</li>
+          </ol>
+          <p>阈值与保护区在 <strong>设置 → AI 超级大脑</strong> 调整；后台摘要走 Bot 的 <strong>后台模型</strong>。</p>
+        </section>
+        <section class="help-section">
+          <h4>6. 单轮对话流程</h4>
+          <ol>
+            <li>用户发消息 → 写入会话历史。</li>
+            <li>编排器合并全局 + Bot 配置，按开关组装 system 块（人格 / 记忆 / 左脑）。</li>
+            <li>压缩引擎评估上下文压力，必要时 Tier3 摘要。</li>
+            <li>主模型流式回复。</li>
+            <li>回合结束后异步：L0 写入、L1 提取、L2 周期摘要、学习脑信号（若开启）。</li>
+          </ol>
+        </section>
+        <section class="help-section">
+          <h4>7. 首页 Bot 卡片提示</h4>
+          <ul>
+            <li>摘要行显示后台模型与 M/P/C 预算（记忆 / 人格 / 左脑）。</li>
+            <li><strong>默认</strong>：继承平台AI 超级大脑设置；<strong>已覆盖</strong>：该 Bot 有自定义项。</li>
+            <li>点击 badge 可查看覆盖详情与默认值对比，并快捷进入编辑。</li>
+          </ul>
+        </section>
+        <section class="help-section">
+          <h4>8. 数据与备份</h4>
+          <p>本地数据默认在 <code>meclaw2/data/</code>：<code>config.json</code>、<code>history/</code>、<code>souls/</code>。</p>
+          <p><strong>设置 → 数据</strong> 可导出 ZIP 备份（含密钥，请妥善保管）。</p>
+        </section>
+        <section class="help-section">
+          <h4>9. 常见问题</h4>
+          <ul>
+            <li>不能聊天：检查 Bot 是否绑定供应商并选了有效模型。</li>
+            <li>供应商测试无反应：确认服务已重启；测试会 toast 提示，卡片上也会显示结果。</li>
+            <li>记忆未生效：确认AI 超级大脑已开启，且记忆检索/写入开关为开。</li>
+            <li>端口占用：关闭旧 python 进程后重新运行 <code>启动MNEMOS.bat</code>。</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="brain-status-modal" class="modal hidden">
+    <div class="modal-panel sheet brain-status-sheet">
+      <div class="modal-header brain-status-header">
+        <div class="brain-status-header-text">
+          <h3>AI 超级大脑状态</h3>
+          <p id="brain-status-subtitle" class="brain-status-subtitle">AI 超级大脑编排 · 记忆 · 上下文</p>
+        </div>
+        <button id="btn-close-brain-status" type="button" class="btn btn-ghost" aria-label="关闭">✕</button>
+      </div>
+      <div id="brain-status-body" class="brain-status-body">
+        <div id="brain-status-scroll" class="brain-status-scroll">
+          <p class="brain-status-empty">加载中…</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="memory-browser-modal" class="modal hidden">
+    <div class="modal-panel sheet memory-browser-sheet">
+      <div class="modal-header memory-browser-header">
+        <div class="memory-browser-header-text">
+          <h3 id="memory-browser-title">记忆库</h3>
+          <p id="memory-browser-subtitle" class="memory-browser-subtitle">L0–L3 分层记忆</p>
+        </div>
+        <button id="btn-close-memory-browser" type="button" class="btn btn-ghost" aria-label="关闭">✕</button>
+      </div>
+      <div class="memory-browser-tabs" role="tablist">
+        <button type="button" class="memory-tab active" data-tab="l0">L0 证据</button>
+        <button type="button" class="memory-tab" data-tab="l1">L1 原子</button>
+        <button type="button" class="memory-tab" data-tab="l2">L2 摘要</button>
+        <button type="button" class="memory-tab" data-tab="l3">L3 画像</button>
+      </div>
+      <div class="memory-browser-search">
+        <input id="memory-browser-search-input" type="search" placeholder="搜索记忆…" autocomplete="off">
+      </div>
+      <div id="memory-browser-body" class="memory-browser-body">
+        <div id="memory-browser-scroll" class="memory-browser-scroll">
+          <p class="memory-browser-empty">加载中…</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/animations/engine.js"></script>
+  <script src="/static/animations/a03-session-insert.js"></script>
+  <script src="/static/animations/a04-screen-transition.js"></script>
+  <script src="/static/animations/a05-modal-sheet.js"></script>
+  <script src="/static/animations/a06-button-press.js"></script>
+  <script src="/static/animations/a07-settings-tab.js"></script>
+  <script src="/static/animations/a08-chat-session-switch.js"></script>
+  <script src="/static/markdown.js"></script>
+  <script src="/static/app.js"></script>
+  <div id="app-toast" class="app-toast hidden" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,198 @@
+{
+  "suite": "personamem_lite_zh",
+  "description": "MNEMOS 中文轻量记忆 benchmark（PersonaMem 风格 MCQ）",
+  "cases": [
+    {
+      "id": "lite_zh_01",
+      "question_type": "preference_recall",
+      "conversation": [
+        {"role": "user", "content": "我对香菜过敏，以后推荐餐厅时请避开含香菜的菜。"},
+        {"role": "assistant", "content": "好的，我会记住你不喜欢香菜，并在餐饮建议里避开它。"},
+        {"role": "user", "content": "另外我最近在控糖，甜点也尽量少推荐。"},
+        {"role": "assistant", "content": "明白，我会同时考虑控糖需求。"}
+      ],
+      "question": "今晚想在家附近找一家川菜馆，有什么推荐？",
+      "options": [
+        "推荐夫妻肺片、折耳根拌香菜和红糖糍粑",
+        "推荐少油少糖的宫保鸡丁，并确认菜品不含香菜",
+        "推荐随便一家网红店，越辣越好",
+        "推荐泰式冬阴功和芒果糯米饭"
+      ],
+      "correct": "B",
+      "recall_keywords": ["香菜", "控糖"]
+    },
+    {
+      "id": "lite_zh_02",
+      "question_type": "preference_evolution",
+      "conversation": [
+        {"role": "user", "content": "我过去很喜欢超辣火锅，每周都会去吃。"},
+        {"role": "assistant", "content": "了解，你偏好重辣口味。"},
+        {"role": "user", "content": "但医生上个月说我需要养胃，暂时不能再吃太辣。"},
+        {"role": "assistant", "content": "收到，之后我会优先推荐温和、易消化的食物。"}
+      ],
+      "question": "周末朋友约吃饭，想要热乎、但不要刺激胃部，选什么更合适？",
+      "options": [
+        "重庆九宫格特辣火锅",
+        "潮汕牛肉火锅或菌菇汤锅",
+        "韩式双倍辣炒年糕",
+        "湖南剁椒鱼头配重辣蘸料"
+      ],
+      "correct": "B",
+      "recall_keywords": ["养胃", "不能太辣", "温和"]
+    },
+    {
+      "id": "lite_zh_03",
+      "question_type": "cross_session",
+      "conversation": [
+        {"role": "user", "content": "我下周要去上海出差，会议地点在陆家嘴。"},
+        {"role": "assistant", "content": "好的，我会按陆家嘴的位置帮你规划。"},
+        {"role": "user", "content": "我习惯住有健身房的酒店，越靠近地铁越好。"},
+        {"role": "assistant", "content": "明白，优先地铁附近且带健身房的酒店。"}
+      ],
+      "question": "帮我选一家陆家嘴附近的住宿，明天就要订。",
+      "options": [
+        "推荐浦东机场旁的经济型旅馆，无健身房",
+        "推荐陆家嘴步行可达地铁且带健身房的商务酒店",
+        "推荐崇明岛民宿，环境安静但离会议远",
+        "推荐任意最低价酒店即可"
+      ],
+      "correct": "B",
+      "recall_keywords": ["陆家嘴", "健身房", "地铁"]
+    },
+    {
+      "id": "lite_zh_04",
+      "question_type": "implicit_preference",
+      "conversation": [
+        {"role": "user", "content": "请帮我润色这封邮件：‘抱歉今晚无法参加聚餐，最近闻到某些香料会不太舒服。’"},
+        {"role": "assistant", "content": "可以改为更正式的表达，并保留你身体不适的原因。"},
+        {"role": "user", "content": "语气要礼貌，但别写太细。"},
+        {"role": "assistant", "content": "好的，我会保持简洁礼貌。"}
+      ],
+      "question": "下次团队订餐，我应该怎么备注比较合适？",
+      "options": [
+        "备注：请多加香菜和浓香型香料",
+        "备注：请避免使用可能引发不适的香料，具体可私下沟通",
+        "备注：随便做，不用管我",
+        "备注：我只吃重辣，其他都可以"
+      ],
+      "correct": "B",
+      "recall_keywords": ["香料", "不太舒服"]
+    },
+    {
+      "id": "lite_zh_05",
+      "question_type": "constraint_recall",
+      "conversation": [
+        {"role": "user", "content": "我在做开源项目，代码必须 MIT 协议，不能用 GPL 依赖。"},
+        {"role": "assistant", "content": "了解，我会避免推荐 GPL 组件。"},
+        {"role": "user", "content": "另外项目只支持 Python 3.11+。"},
+        {"role": "assistant", "content": "收到，会按 Python 3.11+ 和 MIT 约束给建议。"}
+      ],
+      "question": "有没有合适的 JSON 解析库可以引入？",
+      "options": [
+        "直接引入 GPL 协议的库，功能更强",
+        "优先标准库 json 或 MIT/Apache 兼容库，并确认支持 Python 3.11+",
+        "使用 Python 2 时代的第三方库即可",
+        "不用考虑协议，先上线再说"
+      ],
+      "correct": "B",
+      "recall_keywords": ["MIT", "GPL", "Python 3.11"]
+    },
+    {
+      "id": "lite_zh_06",
+      "question_type": "distraction",
+      "conversation": [
+        {"role": "user", "content": "我养了一只叫豆包的猫，它最近换粮了。"},
+        {"role": "assistant", "content": "好的，我会记住豆包的情况。"},
+        {"role": "user", "content": "对了，我咖啡只喝燕麦奶拿铁，不要普通牛奶。"},
+        {"role": "assistant", "content": "明白，咖啡建议会避开普通牛奶。"},
+        {"role": "user", "content": "今天天气不错，适合晒被子。"},
+        {"role": "assistant", "content": "是的，注意通风和防晒。"}
+      ],
+      "question": "下午写代码有点困，想点杯咖啡，怎么选？",
+      "options": [
+        "大杯全脂牛奶拿铁加双份糖",
+        "燕麦奶拿铁，少糖",
+        "冰美式加大量奶油",
+        "随便点最便宜即可"
+      ],
+      "correct": "B",
+      "recall_keywords": ["燕麦奶", "不要普通牛奶"]
+    },
+    {
+      "id": "lite_zh_07",
+      "question_type": "todo_recall",
+      "conversation": [
+        {"role": "user", "content": "这周五前我要把季度报告发给财务，别忘了提醒我检查附件。"},
+        {"role": "assistant", "content": "好的，我会记住周五前提交并检查附件。"},
+        {"role": "user", "content": "报告模板在共享盘 Finance/Q3 目录。"},
+        {"role": "assistant", "content": "收到，模板路径已了解。"}
+      ],
+      "question": "今天周四下午，我接下来最该优先处理什么？",
+      "options": [
+        "开始研究新的游戏攻略",
+        "完成季度报告并检查附件，准备周五发送",
+        "先整理桌面照片，报告下周再说",
+        "把模板路径删除，避免混淆"
+      ],
+      "correct": "B",
+      "recall_keywords": ["周五", "季度报告", "附件"]
+    },
+    {
+      "id": "lite_zh_08",
+      "question_type": "novel_suggestion",
+      "conversation": [
+        {"role": "user", "content": "我周末通常去爬山，但膝盖旧伤还没完全好。"},
+        {"role": "assistant", "content": "了解，我会避免推荐高强度登山。"},
+        {"role": "user", "content": "我又很讨厌室内跑步机，觉得太无聊。"},
+        {"role": "assistant", "content": "明白，会优先更有趣且保护膝盖的活动。"}
+      ],
+      "question": "这个周六想活动一下，有什么建议？",
+      "options": [
+        "去爬海拔3000米以上的Technical路线",
+        "选择平缓的湖岸徒步或轻度骑行",
+        "连续跑10公里测试膝盖",
+        "整天宅家不动"
+      ],
+      "correct": "B",
+      "recall_keywords": ["膝盖", "讨厌室内跑步机"]
+    },
+    {
+      "id": "lite_zh_09",
+      "question_type": "style_preference",
+      "conversation": [
+        {"role": "user", "content": "以后回答请尽量简洁，用条目列出要点，不要长篇大论。"},
+        {"role": "assistant", "content": "好的，我会采用简洁条目式回答。"},
+        {"role": "user", "content": "技术名词保留英文即可。"},
+        {"role": "assistant", "content": "收到。"}
+      ],
+      "question": "解释一下 MNEMOS 的记忆分层，怎么答更符合我的习惯？",
+      "options": [
+        "用三大段散文详细铺陈历史背景",
+        "用 3-5 条 bullet 简述 L0-L3，并保留 Memory/FTS 等英文术语",
+        "只回复“自己看文档”",
+        "用诗歌形式回答"
+      ],
+      "correct": "B",
+      "recall_keywords": ["简洁", "条目", "英文"]
+    },
+    {
+      "id": "lite_zh_10",
+      "question_type": "bot_isolation_hint",
+      "conversation": [
+        {"role": "user", "content": "我的工号 A1024，报销系统密码刚改过，别写进任何对外文档。"},
+        {"role": "assistant", "content": "明白，这类敏感信息只用于当前对话，不会写入对外内容。"},
+        {"role": "user", "content": "部门代码是 RD-ML。"},
+        {"role": "assistant", "content": "收到。"}
+      ],
+      "question": "我要写一份对外分享的技术博客，正文里应该怎么处理内部信息？",
+      "options": [
+        "把工号和报销密码写进去方便同事查看",
+        "省略敏感账号信息，仅保留非敏感的 RD-ML 这类必要上下文",
+        "把所有内部信息完整公开",
+        "拒绝回答任何写作建议"
+      ],
+      "correct": "B",
+      "recall_keywords": ["密码", "别写进", "对外"]
+    }
+  ]
+}

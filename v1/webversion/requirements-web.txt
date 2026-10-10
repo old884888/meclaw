@@ -1,0 +1,6 @@
+# Web 版额外依赖（桌面版 requirements.txt 之外安装）
+# 安装：pip install -r webversion/requirements-web.txt
+
+fastapi>=0.110
+uvicorn[standard]>=0.27
+websockets>=12.0

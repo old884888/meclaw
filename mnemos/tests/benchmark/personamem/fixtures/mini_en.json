@@ -1,0 +1,44 @@
+{
+  "suite": "personamem_mini_en",
+  "description": "Offline mini PersonaMem-style cases (English) for smoke testing without HuggingFace download",
+  "cases": [
+    {
+      "id": "mini_en_01",
+      "question_type": "preference_recall",
+      "conversation": [
+        {"role": "user", "content": "I am vegetarian and I never eat beef or pork."},
+        {"role": "assistant", "content": "Got it. I will avoid meat recommendations for you."},
+        {"role": "user", "content": "I also prefer mild flavors, not very spicy food."},
+        {"role": "assistant", "content": "Understood. Mild vegetarian options only."}
+      ],
+      "question": "Can you suggest a dinner option near the office?",
+      "options": [
+        "Spicy beef noodle soup",
+        "Mild vegetarian mushroom pasta",
+        "Pork belly rice bowl",
+        "Extra-hot chicken wings"
+      ],
+      "correct": "B",
+      "recall_keywords": ["vegetarian", "mild"]
+    },
+    {
+      "id": "mini_en_02",
+      "question_type": "preference_evolution",
+      "conversation": [
+        {"role": "user", "content": "I used to drink a lot of coffee every morning."},
+        {"role": "assistant", "content": "Noted."},
+        {"role": "user", "content": "My doctor asked me to switch to decaf for the next two months."},
+        {"role": "assistant", "content": "I will recommend decaf options during that period."}
+      ],
+      "question": "What should I order at the cafe tomorrow morning?",
+      "options": [
+        "Double espresso",
+        "Decaf latte",
+        "Energy drink with extra caffeine",
+        "Black tea is fine but ignore medical advice"
+      ],
+      "correct": "B",
+      "recall_keywords": ["decaf", "doctor"]
+    }
+  ]
+}

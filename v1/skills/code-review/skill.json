@@ -1,0 +1,7 @@
+{
+  "id": "code-review",
+  "name": "代码审查",
+  "version": "1.0",
+  "description": "审查代码质量、安全漏洞和性能问题",
+  "icon": "📝"
+}
